@@ -1,0 +1,9 @@
+../Core/Src/main.c:79:5:main	8	static
+../Core/Src/main.c:143:6:SystemClock_Config	72	static
+../Core/Src/main.c:180:13:MX_TIM1_Init	96	static
+../Core/Src/main.c:255:13:MX_TIM2_Init	64	static
+../Core/Src/main.c:314:13:MX_USART1_UART_Init	8	static
+../Core/Src/main.c:347:13:MX_GPIO_Init	40	static
+../Core/Src/main.c:383:6:setting_robot	88	static
+../Core/Src/main.c:465:6:HAL_TIM_PWM_PulseFinishedCallback	80	static
+../Core/Src/main.c:513:6:Error_Handler	4	static,ignoring_inline_asm

@@ -1,0 +1,97 @@
+!SESSION 2025-04-15 14:14:55.081 -----------------------------------------------
+eclipse.buildId=Version 1.16.0
+java.version=17.0.11
+java.vendor=Eclipse Adoptium
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=en_US
+Command-line arguments:  -os win32 -ws win32 -arch x86_64 -data C:\Robot_Duy\Drawing_Robot_2axis
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 4 4 2025-04-15 14:15:02.720
+!MESSAGE CubeMX plugin appears to be active, Log4j initialization might be too late.
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 1 1 2025-04-15 14:15:02.734
+!MESSAGE Log4j2 initialized with config file C:\Robot_Duy\Drawing_Robot_2axis\.metadata\.log4j2.xml
+
+!ENTRY com.st.stm32cube.ide.mcu.ide 1 1 2025-04-15 14:15:08.060
+!MESSAGE Started RMI Server, listening on port 41337
+
+!ENTRY org.eclipse.cdt.core 1 0 2025-04-15 14:16:29.558
+!MESSAGE Indexed 'Drawing_Robot' (17 sources, 78 headers) in 4.43 sec: 3,643 declarations; 13,251 references; 0 unresolved inclusions; 1 syntax errors; 2 unresolved names (0.012%)
+!SESSION 2025-04-16 00:27:09.704 -----------------------------------------------
+eclipse.buildId=Version 1.16.0
+java.version=17.0.11
+java.vendor=Eclipse Adoptium
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=en_US
+Command-line arguments:  -os win32 -ws win32 -arch x86_64
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 4 4 2025-04-16 00:27:38.210
+!MESSAGE CubeMX plugin appears to be active, Log4j initialization might be too late.
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 1 1 2025-04-16 00:27:38.218
+!MESSAGE Log4j2 initialized with config file C:\Robot_Duy\Drawing_Robot_2axis\.metadata\.log4j2.xml
+
+!ENTRY com.st.stm32cube.ide.mcu.ide 1 1 2025-04-16 00:27:44.526
+!MESSAGE Started RMI Server, listening on port 41337
+!SESSION 2025-04-16 13:09:35.234 -----------------------------------------------
+eclipse.buildId=Version 1.16.0
+java.version=17.0.11
+java.vendor=Eclipse Adoptium
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=en_US
+Framework arguments:  C:\Robot\robot-project\draw_line_2_axis\ENCODER_JOYSTICK\.project
+Command-line arguments:  -os win32 -ws win32 -arch x86_64 C:\Robot\robot-project\draw_line_2_axis\ENCODER_JOYSTICK\.project
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 4 4 2025-04-16 13:09:54.107
+!MESSAGE CubeMX plugin appears to be active, Log4j initialization might be too late.
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 1 1 2025-04-16 13:09:54.114
+!MESSAGE Log4j2 initialized with config file C:\Robot_Duy\Drawing_Robot_2axis\.metadata\.log4j2.xml
+
+!ENTRY com.st.stm32cube.ide.mcu.ide 1 1 2025-04-16 13:10:00.870
+!MESSAGE Started RMI Server, listening on port 41337
+
+!ENTRY org.eclipse.cdt.core 1 0 2025-04-16 13:10:05.815
+!MESSAGE Indexed 'ENCODER_JOYSTICK' (25 sources, 156 headers) in 3.92 sec: 13,362 declarations; 72,079 references; 2 unresolved inclusions; 36 syntax errors; 463 unresolved names (0.54%)
+!SESSION 2025-04-17 00:05:11.220 -----------------------------------------------
+eclipse.buildId=Version 1.16.0
+java.version=17.0.11
+java.vendor=Eclipse Adoptium
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=en_US
+Command-line arguments:  -os win32 -ws win32 -arch x86_64
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 4 4 2025-04-17 00:05:32.018
+!MESSAGE CubeMX plugin appears to be active, Log4j initialization might be too late.
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 1 1 2025-04-17 00:05:32.025
+!MESSAGE Log4j2 initialized with config file C:\Robot_Duy\Drawing_Robot_2axis\.metadata\.log4j2.xml
+
+!ENTRY com.st.stm32cube.ide.mcu.ide 1 1 2025-04-17 00:05:38.387
+!MESSAGE Started RMI Server, listening on port 41337
+!SESSION 2025-04-17 12:04:26.462 -----------------------------------------------
+eclipse.buildId=Version 1.16.0
+java.version=17.0.11
+java.vendor=Eclipse Adoptium
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=en_US
+Command-line arguments:  -os win32 -ws win32 -arch x86_64
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 4 4 2025-04-17 12:04:37.474
+!MESSAGE CubeMX plugin appears to be active, Log4j initialization might be too late.
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 1 1 2025-04-17 12:04:37.474
+!MESSAGE Log4j2 initialized with config file C:\Robot_Duy\Drawing_Robot_2axis\.metadata\.log4j2.xml
+
+!ENTRY com.st.stm32cube.ide.mcu.ide 1 1 2025-04-17 12:04:44.010
+!MESSAGE Started RMI Server, listening on port 41337
+!SESSION 2025-04-17 20:49:17.666 -----------------------------------------------
+eclipse.buildId=Version 1.16.0
+java.version=17.0.11
+java.vendor=Eclipse Adoptium
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=en_US
+Command-line arguments:  -os win32 -ws win32 -arch x86_64
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 4 4 2025-04-17 20:50:32.217
+!MESSAGE CubeMX plugin appears to be active, Log4j initialization might be too late.
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 1 1 2025-04-17 20:50:32.225
+!MESSAGE Log4j2 initialized with config file C:\Robot_Duy\Drawing_Robot_2axis\.metadata\.log4j2.xml
+
+!ENTRY com.st.stm32cube.ide.mcu.ide 1 1 2025-04-17 20:50:38.600
+!MESSAGE Started RMI Server, listening on port 41337

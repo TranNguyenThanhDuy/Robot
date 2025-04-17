@@ -1,0 +1,16 @@
+14:51:58 **** Incremental Build of configuration Debug for project ENCODER_JOYSTICK ****
+make -j12 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m3 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F103xE -c -I../Core/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I../Drivers/STM32F1xx_HAL_Driver/Inc -I../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfloat-abi=soft -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc "../Core/Src/test.c" -mcpu=cortex-m3 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F103xE -c -I../Core/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I../Drivers/STM32F1xx_HAL_Driver/Inc -I../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/test.d" -MT"Core/Src/test.o" --specs=nano.specs -mfloat-abi=soft -mthumb -o "Core/Src/test.o"
+../Core/Src/main.c: In function 'HAL_TIM_PWM_PulseFinishedCallback':
+../Core/Src/main.c:380:52: error: 'compenstateX' undeclared (first use in this function); did you mean 'compensateX'?
+  380 |                                         <= stepX + compenstateX && StateDirX == ClockWise) {
+      |                                                    ^~~~~~~~~~~~
+      |                                                    compensateX
+../Core/Src/main.c:380:52: note: each undeclared identifier is reported only once for each function it appears in
+make: *** [Core/Src/subdir.mk:43: Core/Src/main.o] Error 1
+make: *** Waiting for unfinished jobs....
+"make -j12 all" terminated with exit code 2. Build might be incomplete.
+
+14:51:59 Build Failed. 3 errors, 0 warnings. (took 353ms)
+

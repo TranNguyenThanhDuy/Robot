@@ -517,8 +517,8 @@ void homing()
 	__HAL_TIM_SET_AUTORELOAD(&htim2, MAX_ARR);
 	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, GPIO_PIN_RESET);
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, GPIO_PIN_RESET);
-	HAL_TIM_PWM_Start_IT(&htim1, TIM_CHANNEL_1);
-	HAL_TIM_PWM_Start_IT(&htim2, TIM_CHANNEL_1);
+	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+	HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
 }
 void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
 {
@@ -596,7 +596,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 	if(GPIO_Pin == GPIO_PIN_7)
 	{
 		ishomingX = 1;
-		HAL_TIM_PWM_Stop_IT(&htim1, TIM_CHANNEL_1);
+		HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1);
 		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, GPIO_PIN_SET);
 		HAL_TIM_PWM_Start_IT(&htim1, TIM_CHANNEL_1);
 	}
@@ -604,7 +604,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 	if(GPIO_Pin == GPIO_PIN_8)
 	{
 		ishomingY = 1;
-		HAL_TIM_PWM_Stop_IT(&htim2, TIM_CHANNEL_1);
+		HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_1);
 		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, GPIO_PIN_SET);
 		HAL_TIM_PWM_Start_IT(&htim2, TIM_CHANNEL_1);
 	}

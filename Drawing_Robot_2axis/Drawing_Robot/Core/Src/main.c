@@ -24,6 +24,7 @@
 #include "string.h"
 #include "stdio.h"
 #include "stdlib.h"
+#include "math.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -48,13 +49,19 @@ TIM_HandleTypeDef htim2;
 UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
-int posX[] = {2400, 2400, 4800, 4800, 4800};
-int posY[] = {4800, 4800, 3200, 0, 3200};
+double posX[5] = {1.2, 2.4, 0, 2.4, 0};
+
+double posY[5] = {2.4, 0, 1.6, 1.6, 0};
+
+
 int dirX[] = {1,1,0,1,0};
 int dirY[] = {1,0,1,0,0};
-#define MAX_ARR 1000
-uint32_t arr_X, arr_Y, gotoX = 0, gotoY = 0, countX = 0, countY = 0, i = 0;
+double current_X = 0.0, current_Y = 0.0, prev_X = 0.0, prev_Y = 0.0;
+#define MAX_ARR 800
+uint32_t arr_X, arr_Y, gotoX = 0, gotoY = 0, countX = 0, countY = 0, i = 0, prev_dir_x = 0, prev_dir_y = 0, ishomingX = 0, ishomingY = 0,idle =0;
+uint32_t counthomeX = 0, counthomeY =0;
 double ratio;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -109,6 +116,7 @@ int main(void)
   HAL_TIM_Base_Start_IT(&htim1);
   HAL_TIM_Base_Start_IT(&htim2);
   void setting_robot(int index);
+  void homing();
 //  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, 0);
 //  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
 //
@@ -375,6 +383,16 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
+  /*Configure GPIO pins : PB6 PB7 PB8 */
+  GPIO_InitStruct.Pin = GPIO_PIN_6|GPIO_PIN_7|GPIO_PIN_8;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+  /* EXTI interrupt init*/
+  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
+
 /* USER CODE BEGIN MX_GPIO_Init_2 */
 /* USER CODE END MX_GPIO_Init_2 */
 }
@@ -382,8 +400,34 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 void setting_robot(int index)
 {
-	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, dirY[index]);
-	  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, dirX[index]);
+	  idle = 1;
+	  current_X = (double) posX[index] - prev_X;
+	  current_Y = (double) posY[index] - prev_Y;
+	  if(current_X > prev_X)
+	  {
+		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, GPIO_PIN_SET);
+		  prev_dir_x = 1;
+	  }else if(current_X < prev_X)
+	  {
+		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, GPIO_PIN_RESET);
+		  prev_dir_x = 0;
+	  }else{
+		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, prev_dir_x);
+	  }
+
+	  if(current_Y > prev_Y)
+	  {
+		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, GPIO_PIN_SET);
+		  prev_dir_y = 1;
+	  }else if(current_Y < prev_Y)
+	  {
+		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, GPIO_PIN_RESET);
+		  prev_dir_y = 0;
+	  }else{
+		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, prev_dir_y);
+	  }
+//	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, dirY[index]);
+//	  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, dirX[index]);
 //	  if(index == 0)
 //	  {
 //		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, dirX[index]);
@@ -402,29 +446,31 @@ void setting_robot(int index)
 //		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, dirX[index]);
 //		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, dirY[index]);
 //	  }
-	  if(posX[index] > posY[index] && posX[index] != 0 && posY[index] != 0)
+	  current_X = fabs(current_X);
+	  current_Y = fabs(current_Y);
+	  if(current_X > current_Y && current_X != 0 && current_Y != 0)
 	  {
 		  char msg[64];
 		  sprintf(msg, "Mode %d", 0);
 		  HAL_UART_Transmit(&huart1, (uint8_t*)msg, strlen(msg), HAL_MAX_DELAY);
 		  __HAL_TIM_SET_AUTORELOAD(&htim1, MAX_ARR);
-		  ratio = (double) posX[index] / posY[index];
+		  ratio = (double) current_X / current_Y;
 		  arr_Y = ratio * MAX_ARR;
 		  __HAL_TIM_SET_AUTORELOAD(&htim2, arr_Y);
 		  HAL_TIM_PWM_Start_IT(&htim1, TIM_CHANNEL_1);
 		  HAL_TIM_PWM_Start_IT(&htim2, TIM_CHANNEL_1);
-	  }else if(posX[index] < posY[index] && posX[index] != 0 && posY[index] != 0)
+	  }else if(current_X < current_Y && current_X != 0 && current_Y != 0)
 	  {
 		  char msg[64];
 		  sprintf(msg, "Mode %d", 1);
 		  HAL_UART_Transmit(&huart1, (uint8_t*)msg, strlen(msg), HAL_MAX_DELAY);
 		  __HAL_TIM_SET_AUTORELOAD(&htim2, MAX_ARR);
-		  ratio = (double) posY[index] / posX[index];
+		  ratio = (double) current_Y / current_X;
 		  arr_X = ratio * MAX_ARR;
 		  __HAL_TIM_SET_AUTORELOAD(&htim1, arr_X);
 		  HAL_TIM_PWM_Start_IT(&htim1, TIM_CHANNEL_1);
 		  HAL_TIM_PWM_Start_IT(&htim2, TIM_CHANNEL_1);
-	  }else if(posX[index] == posY[index])
+	  }else if(current_X == current_Y)
 	  {
 		  char msg[64];
 		  sprintf(msg, "Mode %d", 2);
@@ -442,7 +488,7 @@ void setting_robot(int index)
 		  gotoY = 1;
 		  HAL_TIM_PWM_Stop_IT(&htim1, TIM_CHANNEL_1);
 		  HAL_TIM_PWM_Stop_IT(&htim2, TIM_CHANNEL_1);
-	  }else if(posX[index] == 0 && posY[index] !=0)
+	  }else if(current_X == 0 && current_Y !=0)
 	  {
 		  char msg[64];
 		  sprintf(msg, "Mode %d", 4);
@@ -451,7 +497,7 @@ void setting_robot(int index)
 		  __HAL_TIM_SET_AUTORELOAD(&htim2, MAX_ARR);
 		  HAL_TIM_PWM_Stop_IT(&htim1, TIM_CHANNEL_1);
 		  HAL_TIM_PWM_Start_IT(&htim2, TIM_CHANNEL_1);
-	  }else if(posX[index] != 0 && posY[index] == 0)
+	  }else if(current_X != 0 && current_Y == 0)
 	  {
 		  char msg[64];
 		  sprintf(msg, "Mode %d", 5);
@@ -461,34 +507,46 @@ void setting_robot(int index)
 		  HAL_TIM_PWM_Stop_IT(&htim2, TIM_CHANNEL_1);
 		  HAL_TIM_PWM_Start_IT(&htim1, TIM_CHANNEL_1);
 	  }
+	  prev_X = posX[index];
+	  prev_Y = posY[index];
+}
+
+void homing()
+{
+	__HAL_TIM_SET_AUTORELOAD(&htim1, MAX_ARR);
+	__HAL_TIM_SET_AUTORELOAD(&htim2, MAX_ARR);
+	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, GPIO_PIN_RESET);
+	HAL_TIM_PWM_Start_IT(&htim1, TIM_CHANNEL_1);
+	HAL_TIM_PWM_Start_IT(&htim2, TIM_CHANNEL_1);
 }
 void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
 {
-	  if(htim->Instance == TIM1)
+	  if(htim->Instance == TIM1 && ishomingX == 0)
 	  {
 		  countX++;
-		  if(countX > posX[i] - 1)
+		  if(countX > (current_X * 10 * 200) - 1)
 		  {
 			  char msg[64];
-			  sprintf(msg, "countX %ld", countX);
+			  sprintf(msg, "countX %ld, dir_x %ld", countX, prev_dir_x);
 			  HAL_UART_Transmit(&huart1, (uint8_t*)msg, strlen(msg), 1000);
 			  HAL_TIM_PWM_Stop_IT(&htim1, TIM_CHANNEL_1);
 			  gotoX = 1;
 		  }
 	  }
-	  if(htim->Instance == TIM2)
+	  if(htim->Instance == TIM2 && ishomingY == 0)
 	  {
 		  countY++;
-		  if(countY > posY[i] - 1)
+		  if(countY > (current_Y * 10 * 200) - 1)
 		  {
 			  char msg[64];
-			  sprintf(msg, "countY %ld", countY);
+			  sprintf(msg, "countY %ld, dir_y %ld", countY, prev_dir_y);
 			  HAL_UART_Transmit(&huart1, (uint8_t*)msg, strlen(msg), 1000);
 			  HAL_TIM_PWM_Stop_IT(&htim2, TIM_CHANNEL_1);
 			  gotoY = 1;
 		  }
 	  }
-	  if(gotoX == 1 && gotoY == 1)
+	  if(gotoX == 1 && gotoY == 1 && ishomingX == 0 && ishomingY == 0)
 	  {
 //		  char msg[64];
 //		  sprintf(msg, "Point %ld: X = %d, Y = %d\r\n", i+1, posX[i], posY[i]);
@@ -498,11 +556,58 @@ void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
 		  gotoY = 0;
 		  countX = 0;
 		  countY = 0;
-		  if(i<=4)
+		  if(i<5)
 		  {
 			  setting_robot(i);
+		  }else{
+			  idle = 0;
 		  }
 	  }
+	  if(htim->Instance == TIM1 && ishomingX == 1)
+	  {
+		  counthomeX++;
+		  if(counthomeX > 800)
+		  {
+			  HAL_TIM_PWM_Stop_IT(&htim1, TIM_CHANNEL_1);
+			  ishomingX = 0;
+			  counthomeX = 0;
+		  }
+	  }
+
+	  if(htim->Instance == TIM2 && ishomingY == 1)
+	  {
+		  counthomeY++;
+		  if(counthomeY > 800)
+		  {
+			  HAL_TIM_PWM_Stop_IT(&htim2, TIM_CHANNEL_1);
+			  ishomingY = 0;
+			  counthomeY = 0;
+		  }
+	  }
+}
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+	if(GPIO_Pin == GPIO_PIN_6 && idle == 0)
+	{
+		homing();
+	}
+
+	if(GPIO_Pin == GPIO_PIN_7)
+	{
+		ishomingX = 1;
+		HAL_TIM_PWM_Stop_IT(&htim1, TIM_CHANNEL_1);
+		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, GPIO_PIN_SET);
+		HAL_TIM_PWM_Start_IT(&htim1, TIM_CHANNEL_1);
+	}
+
+	if(GPIO_Pin == GPIO_PIN_8)
+	{
+		ishomingY = 1;
+		HAL_TIM_PWM_Stop_IT(&htim2, TIM_CHANNEL_1);
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, GPIO_PIN_SET);
+		HAL_TIM_PWM_Start_IT(&htim2, TIM_CHANNEL_1);
+	}
 }
 /* USER CODE END 4 */
 

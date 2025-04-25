@@ -54,10 +54,12 @@ double posX[5] = {1.2, 2.4, 0, 2.4, 0};
 double posY[5] = {2.4, 0, 1.6, 1.6, 0};
 
 
-int dirX[] = {1,1,0,1,0};
-int dirY[] = {1,0,1,0,0};
-double current_X = 0.0, current_Y = 0.0, prev_X = 0.0, prev_Y = 0.0;
+
+//int dirX[] = {1,1,0,1,0};
+//int dirY[] = {1,0,1,0,0};
+double current_X = 0.0, current_Y = 0.0, prev_X = 0.000, prev_Y = 0.000;
 #define MAX_ARR 800
+#define point 12
 uint32_t arr_X, arr_Y, gotoX = 0, gotoY = 0, countX = 0, countY = 0, i = 0, prev_dir_x = 0, prev_dir_y = 0, ishomingX = 0, ishomingY = 0,idle =0;
 uint32_t counthomeX = 0, counthomeY =0;
 double ratio;
@@ -403,11 +405,11 @@ void setting_robot(int index)
 	  idle = 1;
 	  current_X = (double) posX[index] - prev_X;
 	  current_Y = (double) posY[index] - prev_Y;
-	  if(current_X > prev_X)
+	  if(current_X > 0)
 	  {
 		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, GPIO_PIN_SET);
 		  prev_dir_x = 1;
-	  }else if(current_X < prev_X)
+	  }else if(current_X < 0)
 	  {
 		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, GPIO_PIN_RESET);
 		  prev_dir_x = 0;
@@ -415,11 +417,11 @@ void setting_robot(int index)
 		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, prev_dir_x);
 	  }
 
-	  if(current_Y > prev_Y)
+	  if(current_Y > 0)
 	  {
 		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, GPIO_PIN_SET);
 		  prev_dir_y = 1;
-	  }else if(current_Y < prev_Y)
+	  }else if(current_Y < 0)
 	  {
 		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, GPIO_PIN_RESET);
 		  prev_dir_y = 0;
@@ -556,7 +558,7 @@ void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
 		  gotoY = 0;
 		  countX = 0;
 		  countY = 0;
-		  if(i<5)
+		  if(i<point)
 		  {
 			  setting_robot(i);
 		  }else{

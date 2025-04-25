@@ -1,0 +1,47 @@
+#include <stdio.h>
+#include <math.h>
+
+#define PI 3.14159265
+
+// Hàm tính góc từ tâm đến một điểm
+double angle(double xc, double yc, double x, double y) {
+    return atan2(y - yc, x - xc);
+}
+
+int main() {
+    // ⚙️ Khai báo điểm đầu, điểm cuối và tâm cung
+    double x0 = -20, y0 = 0;      // Điểm đầu
+    double x1 = 0, y1 = 20;     // Điểm cuối
+    double xc = 0, yc = 0;      // Tâm cung
+
+    int steps = 20;             // Số bước nội suy
+    int clockwise = 1;          // 👉 1 = G02 (CW), 0 = G03 (CCW)
+
+    // 🔁 Tính bán kính cung
+    double R = sqrt((x0 - xc)*(x0 - xc) + (y0 - yc)*(y0 - yc));
+
+    // 🎯 Tính góc từ tâm đến điểm đầu và cuối
+    double theta_start = angle(xc, yc, x0, y0);
+    double theta_end   = angle(xc, yc, x1, y1);
+
+    // 🔄 Điều chỉnh góc theo chiều quay mong muốn
+    if (clockwise) {
+        if (theta_end >= theta_start)
+            theta_end -= 2 * PI;
+    } else {
+        if (theta_end <= theta_start)
+            theta_end += 2 * PI;
+    }
+
+    // 🌀 Nội suy các điểm theo cung
+    printf("Nội suy theo chiều %s:\n", clockwise ? "G02 (CW)" : "G03 (CCW)");
+    for (int i = 0; i <= steps; ++i) {
+        double t = (double)i / steps;
+        double theta = theta_start + t * (theta_end - theta_start);
+        double x = xc + R * cos(theta);
+        double y = yc + R * sin(theta);
+        printf("Point %2d: x = %.3f, y = %.3f\n", i, x, y);
+    }
+
+    return 0;
+}

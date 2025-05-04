@@ -159,3 +159,53 @@ Command-line arguments:  -os win32 -ws win32 -arch x86_64
 
 !ENTRY com.st.stm32cube.ide.mcu.ide 1 1 2025-04-25 19:40:53.941
 !MESSAGE Started RMI Server, listening on port 41337
+!SESSION 2025-04-30 15:17:49.278 -----------------------------------------------
+eclipse.buildId=Version 1.16.0
+java.version=17.0.11
+java.vendor=Eclipse Adoptium
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=en_US
+Framework arguments:  C:\Robot_Duy\Drawing_Robot_2axis\Drawing_Robot\.project
+Command-line arguments:  -os win32 -ws win32 -arch x86_64 C:\Robot_Duy\Drawing_Robot_2axis\Drawing_Robot\.project
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 4 4 2025-04-30 15:18:09.670
+!MESSAGE CubeMX plugin appears to be active, Log4j initialization might be too late.
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 1 1 2025-04-30 15:18:09.670
+!MESSAGE Log4j2 initialized with config file C:\Robot_Duy\Drawing_Robot_2axis\.metadata\.log4j2.xml
+
+!ENTRY com.st.stm32cube.ide.mcu.ide 1 1 2025-04-30 15:18:15.088
+!MESSAGE Started RMI Server, listening on port 41337
+
+!ENTRY org.eclipse.cdt.core 1 0 2025-04-30 15:18:18.127
+!MESSAGE Indexed 'Drawing_Robot' (20 sources, 113 headers) in 2.86 sec: 10,286 declarations; 51,254 references; 2 unresolved inclusions; 36 syntax errors; 188 unresolved names (0.3%)
+
+!ENTRY org.eclipse.cdt.core 1 0 2025-04-30 16:18:20.508
+!MESSAGE Indexed 'modulation' (19 sources, 107 headers) in 2.07 sec: 8,723 declarations; 44,017 references; 2 unresolved inclusions; 36 syntax errors; 188 unresolved names (0.36%)
+
+!ENTRY org.eclipse.cdt.core 1 0 2025-04-30 18:21:29.884
+!MESSAGE Indexed 'modulation' (19 sources, 107 headers) in 0.974 sec: 8,723 declarations; 44,017 references; 2 unresolved inclusions; 36 syntax errors; 188 unresolved names (0.36%)
+
+!ENTRY org.eclipse.cdt.core 1 0 2025-04-30 19:56:06.727
+!MESSAGE Indexed 'Drawing_Robot' (20 sources, 113 headers) in 1.21 sec: 10,308 declarations; 51,344 references; 2 unresolved inclusions; 36 syntax errors; 188 unresolved names (0.3%)
+
+!ENTRY org.eclipse.cdt.core 1 0 2025-04-30 19:57:22.122
+!MESSAGE Indexed 'Drawing_Robot' (20 sources, 113 headers) in 0.85 sec: 10,308 declarations; 51,344 references; 2 unresolved inclusions; 36 syntax errors; 188 unresolved names (0.3%)
+!SESSION 2025-04-30 21:50:34.034 -----------------------------------------------
+eclipse.buildId=Version 1.16.0
+java.version=17.0.11
+java.vendor=Eclipse Adoptium
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=en_US
+Framework arguments:  C:\Robot_Duy\Drawing_Robot_2axis\Drawing_Robot\.project
+Command-line arguments:  -os win32 -ws win32 -arch x86_64 C:\Robot_Duy\Drawing_Robot_2axis\Drawing_Robot\.project
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 4 4 2025-04-30 21:51:04.386
+!MESSAGE CubeMX plugin appears to be active, Log4j initialization might be too late.
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 1 1 2025-04-30 21:51:04.388
+!MESSAGE Log4j2 initialized with config file C:\Robot_Duy\Drawing_Robot_2axis\.metadata\.log4j2.xml
+
+!ENTRY com.st.stm32cube.ide.mcu.ide 1 1 2025-04-30 21:51:11.955
+!MESSAGE Started RMI Server, listening on port 41337
+
+!ENTRY org.eclipse.cdt.core 1 0 2025-04-30 21:51:15.023
+!MESSAGE Indexed 'Drawing_Robot' (20 sources, 113 headers) in 2.8 sec: 10,315 declarations; 51,395 references; 2 unresolved inclusions; 36 syntax errors; 188 unresolved names (0.3%)

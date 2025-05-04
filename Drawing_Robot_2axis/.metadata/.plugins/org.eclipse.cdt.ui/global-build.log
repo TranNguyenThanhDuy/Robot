@@ -1,14 +1,14 @@
-22:02:42 **** Incremental Build of configuration Debug for project Drawing_Robot ****
+01:01:24 **** Incremental Build of configuration Debug for project Drawing_Robot ****
 make -j12 all 
 arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m3 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F103xB -c -I../Core/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I../Drivers/STM32F1xx_HAL_Driver/Inc -I../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfloat-abi=soft -mthumb -o "Core/Src/main.o"
-arm-none-eabi-gcc -o "Drawing_Robot.elf" @"objects.list"   -mcpu=cortex-m3 -T"C:\Robot_Duy\Drawing_Robot_2axis\Drawing_Robot\STM32F103C8TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Drawing_Robot.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+arm-none-eabi-gcc -o "Drawing_Robot.elf" @"objects.list"   -mcpu=cortex-m3 -T"C:\Robot_Duy\Drawing_Robot_2axis\Drawing_Robot\STM32F103C8TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Drawing_Robot.map" -Wl,--gc-sections -static -u _scanf_float -u _printf_float --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 Finished building target: Drawing_Robot.elf
  
 arm-none-eabi-size  Drawing_Robot.elf 
 arm-none-eabi-objdump -h -S Drawing_Robot.elf  > "Drawing_Robot.list"
 arm-none-eabi-objcopy  -O ihex Drawing_Robot.elf  "Drawing_Robot.hex"
    text	   data	    bss	    dec	    hex	filename
-  21868	    172	   2216	  24256	   5ec0	Drawing_Robot.elf
+  42940	    612	   3912	  47464	   b968	Drawing_Robot.elf
 Finished building: default.size.stdout
  
 Finished building: Drawing_Robot.hex

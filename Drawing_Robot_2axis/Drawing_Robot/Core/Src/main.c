@@ -49,20 +49,34 @@ TIM_HandleTypeDef htim2;
 UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
-double posX[5] = {1.2, 2.4, 0, 2.4, 0};
+double posX[9] = {0, 2.4, 2.4, 0, 1.2, 2.4, 0, 2.4, 0};
+double posY[9] = {2.4, 2.4, 0, 0, 2.4, 0, 1.6, 1.6, 0};
 
-double posY[5] = {2.4, 0, 1.6, 1.6, 0};
-
-
-
+double testX[100];
+double testY[100];
+uint8_t rx_data;
 //int dirX[] = {1,1,0,1,0};
 //int dirY[] = {1,0,1,0,0};
 double current_X = 0.0, current_Y = 0.0, prev_X = 0.000, prev_Y = 0.000;
 #define MAX_ARR 800
-#define point 12
+uint32_t point, draw_manual;
 uint32_t arr_X, arr_Y, gotoX = 0, gotoY = 0, countX = 0, countY = 0, i = 0, prev_dir_x = 0, prev_dir_y = 0, ishomingX = 0, ishomingY = 0,idle =0;
 uint32_t counthomeX = 0, counthomeY =0;
+uint32_t freedom = 0, star = 0;
 double ratio;
+char uart_rx_buffer[64];
+uint8_t rx_index = 0;
+uint8_t received_point = 0;
+uint8_t ready_to_start = 0;
+uint32_t save_point = 0;
+uint8_t rx_byte;
+/*
+Note:
+gotoX, gotoY are flag indicating that X and Y have been arrived
+prev_dir_x, prev_dir_y are the previous direction of X-axis and Y-axis
+is_homing_x, is_homing_y are the homing flag
+*/
+
 
 /* USER CODE END PV */
 
@@ -117,14 +131,12 @@ int main(void)
 
   HAL_TIM_Base_Start_IT(&htim1);
   HAL_TIM_Base_Start_IT(&htim2);
-  void setting_robot(int index);
+  void setting_robot(int index, double posX[], double posY[]);
   void homing();
-//  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, 0);
-//  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
-//
-//  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, 0);
-//  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
-  setting_robot(0);
+  char msg[] = "Uart Command:\r\n 1. Drawing Star.\r\n 2. Manual Input.\r\n 3. Homing Mode.\r\n 4. Run Save Point in Mode 2. \r\n Note: If you are in mode 2, please enter '!' to quit mode 2.\r\n Sample Command in mode 2: X10 Y10; \r\n";
+  HAL_UART_Transmit(&huart1, (uint8_t*)msg, strlen(msg), HAL_MAX_DELAY);
+//  setting_robot(0);
+  HAL_UART_Receive_IT(&huart1, (uint8_t *)&rx_byte, 1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -134,14 +146,6 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-
-
-
-//	    for (int i = 0; i < pointCount; i++) {
-//	        char msg[64];
-//	        sprintf(msg, "Point %d: X = %d, Y = %d\r\n", i, posX[i], posY[i]);
-//	        HAL_UART_Transmit(&huart1, (uint8_t*)msg, strlen(msg), HAL_MAX_DELAY);
-//	    }
   }
   /* USER CODE END 3 */
 }
@@ -229,7 +233,7 @@ static void MX_TIM1_Init(void)
     Error_Handler();
   }
   sConfigOC.OCMode = TIM_OCMODE_PWM1;
-  sConfigOC.Pulse = 500;
+  sConfigOC.Pulse = 300;
   sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
   sConfigOC.OCNPolarity = TIM_OCNPOLARITY_HIGH;
   sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
@@ -302,7 +306,7 @@ static void MX_TIM2_Init(void)
     Error_Handler();
   }
   sConfigOC.OCMode = TIM_OCMODE_PWM1;
-  sConfigOC.Pulse = 500;
+  sConfigOC.Pulse = 300;
   sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
   sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
   if (HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
@@ -400,60 +404,53 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-void setting_robot(int index)
+void setting_robot(int index, double posX[], double posY[])
 {
+	  HAL_TIM_PWM_Stop_IT(&htim1, TIM_CHANNEL_1);
+	  HAL_TIM_PWM_Stop_IT(&htim2, TIM_CHANNEL_1);
 	  idle = 1;
 	  current_X = (double) posX[index] - prev_X;
 	  current_Y = (double) posY[index] - prev_Y;
-	  if(current_X > 0)
+	  if(current_X > 0) //spin clockwise if current value > previous value
 	  {
 		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, GPIO_PIN_SET);
 		  prev_dir_x = 1;
-	  }else if(current_X < 0)
+	  }else if(current_X < 0) //spin counterclockwise if current value < previous value
 	  {
 		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, GPIO_PIN_RESET);
 		  prev_dir_x = 0;
-	  }else{
+	  }else{ //spin with previous direction if current value if current value = previous value
 		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, prev_dir_x);
 	  }
 
-	  if(current_Y > 0)
+	  if(current_Y > 0) //spin clockwise if current value > previous value
 	  {
 		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, GPIO_PIN_SET);
 		  prev_dir_y = 1;
-	  }else if(current_Y < 0)
+	  }else if(current_Y < 0) //spin counterclockwise if current value < previous value
 	  {
 		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, GPIO_PIN_RESET);
 		  prev_dir_y = 0;
-	  }else{
+	  }else{ //spin with previous direction if current value if current value = previous value
 		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, prev_dir_y);
 	  }
-//	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, dirY[index]);
-//	  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, dirX[index]);
-//	  if(index == 0)
-//	  {
-//		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, dirX[index]);
-//		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, dirY[index]);
-//	  }else if(index == 1 ){
-//		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, dirX[index]);
-//		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, dirY[index]);
-//	  }else if(index == 2){
-//		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, dirX[index]);
-//		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, dirY[index]);
-//	  }else if(index == 3)
-//	  {
-//		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, dirX[index]);
-//		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, dirY[index]);
-//	  }else{
-//		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, dirX[index]);
-//		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, dirY[index]);
-//	  }
+
+	  //get abs of current x value and current y value
 	  current_X = fabs(current_X);
 	  current_Y = fabs(current_Y);
+
+	  /*
+	   	 Mode 0 and Mode 1: reset frequency's X and Y axis proportional to the distance between x and y
+	     Mode 2: run two axes with the same frequency ( X distance = Y distance)
+	     Mode 3: don't move if currentX = currentY = 0
+	     Mode 4 and Mode 5: if current value of any axis is 0, run the remaining axis.
+
+	     The status is trasmitted by uart for user with 9600 bound rate
+	  */
 	  if(current_X > current_Y && current_X != 0 && current_Y != 0)
 	  {
 		  char msg[64];
-		  sprintf(msg, "Mode %d", 0);
+		  sprintf(msg, "Mode %d\n", 0);
 		  HAL_UART_Transmit(&huart1, (uint8_t*)msg, strlen(msg), HAL_MAX_DELAY);
 		  __HAL_TIM_SET_AUTORELOAD(&htim1, MAX_ARR);
 		  ratio = (double) current_X / current_Y;
@@ -464,7 +461,7 @@ void setting_robot(int index)
 	  }else if(current_X < current_Y && current_X != 0 && current_Y != 0)
 	  {
 		  char msg[64];
-		  sprintf(msg, "Mode %d", 1);
+		  sprintf(msg, "Mode %d\n", 1);
 		  HAL_UART_Transmit(&huart1, (uint8_t*)msg, strlen(msg), HAL_MAX_DELAY);
 		  __HAL_TIM_SET_AUTORELOAD(&htim2, MAX_ARR);
 		  ratio = (double) current_Y / current_X;
@@ -475,16 +472,16 @@ void setting_robot(int index)
 	  }else if(current_X == current_Y)
 	  {
 		  char msg[64];
-		  sprintf(msg, "Mode %d", 2);
+		  sprintf(msg, "Mode %d\n", 2);
 		  HAL_UART_Transmit(&huart1, (uint8_t*)msg, strlen(msg), HAL_MAX_DELAY);
 		  __HAL_TIM_SET_AUTORELOAD(&htim1, MAX_ARR);
 		  __HAL_TIM_SET_AUTORELOAD(&htim2, MAX_ARR);
 	      HAL_TIM_PWM_Start_IT(&htim1, TIM_CHANNEL_1);
 		  HAL_TIM_PWM_Start_IT(&htim2, TIM_CHANNEL_1);
-	  }else if(!posX[index] && !posY[index])
+	  }else if(!current_X && !current_Y)
 	  {
 		  char msg[64];
-		  sprintf(msg, "Mode %d", 3);
+		  sprintf(msg, "Mode %d\n", 3);
 		  HAL_UART_Transmit(&huart1, (uint8_t*)msg, strlen(msg), HAL_MAX_DELAY);
 		  gotoX = 1;
 		  gotoY = 1;
@@ -493,7 +490,7 @@ void setting_robot(int index)
 	  }else if(current_X == 0 && current_Y !=0)
 	  {
 		  char msg[64];
-		  sprintf(msg, "Mode %d", 4);
+		  sprintf(msg, "Mode %d\n", 4);
 		  HAL_UART_Transmit(&huart1, (uint8_t*)msg, strlen(msg), HAL_MAX_DELAY);
 		  gotoX = 1;
 		  __HAL_TIM_SET_AUTORELOAD(&htim2, MAX_ARR);
@@ -502,7 +499,7 @@ void setting_robot(int index)
 	  }else if(current_X != 0 && current_Y == 0)
 	  {
 		  char msg[64];
-		  sprintf(msg, "Mode %d", 5);
+		  sprintf(msg, "Mode %d\n", 5);
 		  HAL_UART_Transmit(&huart1, (uint8_t*)msg, strlen(msg), HAL_MAX_DELAY);
 		  gotoY = 1;
 		  __HAL_TIM_SET_AUTORELOAD(&htim1, MAX_ARR);
@@ -513,6 +510,7 @@ void setting_robot(int index)
 	  prev_Y = posY[index];
 }
 
+/* Using hart-limit to set homing. run two axes until the hard-limit is triggered */
 void homing()
 {
 	__HAL_TIM_SET_AUTORELOAD(&htim1, MAX_ARR);
@@ -522,6 +520,7 @@ void homing()
 	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
 	HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
 }
+
 void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
 {
 	  if(htim->Instance == TIM1 && ishomingX == 0)
@@ -530,7 +529,7 @@ void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
 		  if(countX > (current_X * 10 * 200) - 1)
 		  {
 			  char msg[64];
-			  sprintf(msg, "countX %ld, dir_x %ld", countX, prev_dir_x);
+			  sprintf(msg, "countX %ld, dir_x %ld\n", countX, prev_dir_x);
 			  HAL_UART_Transmit(&huart1, (uint8_t*)msg, strlen(msg), 1000);
 			  HAL_TIM_PWM_Stop_IT(&htim1, TIM_CHANNEL_1);
 			  gotoX = 1;
@@ -542,7 +541,7 @@ void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
 		  if(countY > (current_Y * 10 * 200) - 1)
 		  {
 			  char msg[64];
-			  sprintf(msg, "countY %ld, dir_y %ld", countY, prev_dir_y);
+			  sprintf(msg, "countY %ld, dir_y %ld\n", countY, prev_dir_y);
 			  HAL_UART_Transmit(&huart1, (uint8_t*)msg, strlen(msg), 1000);
 			  HAL_TIM_PWM_Stop_IT(&htim2, TIM_CHANNEL_1);
 			  gotoY = 1;
@@ -550,19 +549,32 @@ void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
 	  }
 	  if(gotoX == 1 && gotoY == 1 && ishomingX == 0 && ishomingY == 0)
 	  {
-//		  char msg[64];
-//		  sprintf(msg, "Point %ld: X = %d, Y = %d\r\n", i+1, posX[i], posY[i]);
-//		  HAL_UART_Transmit(&huart1, (uint8_t*)msg, strlen(msg), HAL_MAX_DELAY);
 		  i++;
 		  gotoX = 0;
 		  gotoY = 0;
 		  countX = 0;
 		  countY = 0;
-		  if(i<point)
+		  if(star == 1)
 		  {
-			  setting_robot(i);
-		  }else{
-			  idle = 0;
+			  point = 9;
+			  if(i < point)
+			  {
+				  setting_robot(i,posX,posY);
+			  }else{
+				  idle = 0;
+			  }
+
+		  }
+
+		  if(draw_manual == 1)
+		  {
+			  point = received_point;
+			  if(i < point)
+			  {
+				  setting_robot(i,testX,testY);
+			  }else{
+				  idle = 0;
+			  }
 		  }
 	  }
 	  if(htim->Instance == TIM1 && ishomingX == 1)
@@ -610,6 +622,86 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, GPIO_PIN_SET);
 		HAL_TIM_PWM_Start_IT(&htim2, TIM_CHANNEL_1);
 	}
+}
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
+	if(huart->Instance == huart1.Instance)
+	{
+		if(save_point == 0)
+		{
+			if(rx_byte == '1')
+			{
+	            char msg[] = " Draw Star Mode\r\n";
+	            HAL_UART_Transmit(&huart1, (uint8_t*)msg, strlen(msg), HAL_MAX_DELAY);
+				star = 1;
+				setting_robot(0,posX,posY);
+			}else if(rx_byte == '2')
+			{
+				save_point = 1;
+				draw_manual = 1;
+	            char msg[] = " Manual Input Mode\r\n";
+	            HAL_UART_Transmit(&huart1, (uint8_t*)msg, strlen(msg), HAL_MAX_DELAY);
+			}else if(rx_byte == '3')
+			{
+				for (int i = 0; i < received_point; i++)
+				{
+					char msg[64];
+					sprintf(msg, " Point %d: X = %.2f, Y = %.2f\r\n", i, testX[i], testY[i]);
+					HAL_UART_Transmit(&huart1, (uint8_t*)msg, strlen(msg), 1000);
+				}
+			}else if(rx_byte == '4')
+			{
+				i = 0;
+				star = 0;
+				draw_manual = 1;
+				setting_robot(0,testX,testY);
+			}
+		}
+		else if (save_point == 1)
+		{
+			if(rx_byte == ';')
+			{
+				uart_rx_buffer[rx_index] = '\0';
+				double x_val, y_val;
+				HAL_UART_Transmit(&huart1, (uint8_t*)uart_rx_buffer, strlen(uart_rx_buffer), 1000);
+				if (sscanf(uart_rx_buffer, "x%lf y%lf", &x_val, &y_val) == 2)
+				{
+					gotoX = 0;
+					gotoY = 0;
+					testX[received_point] = x_val;
+					testY[received_point] = y_val;
+					setting_robot(received_point, testX, testY);
+					received_point++;
+
+					char msg[64];
+					sprintf(msg, "Saved: X=%.1f, Y=%.1f\r\n", x_val, y_val);
+					HAL_UART_Transmit(&huart1, (uint8_t*)msg, strlen(msg), 1000);
+				}
+				else {
+					char msg[] = "Re-enter X and Y. \r\n";
+					HAL_UART_Transmit(&huart1, (uint8_t*)msg, strlen(msg), 1000);
+				}
+
+				memset(uart_rx_buffer, 0, sizeof(uart_rx_buffer));
+				rx_index = 0;
+			}
+			else
+			{
+				uart_rx_buffer[rx_index++] = rx_byte;
+				if (rx_index >= sizeof(uart_rx_buffer)) {
+					rx_index = 0;
+				}
+			}
+
+			if(rx_byte == '!')
+			{
+				save_point = 0;
+	            char msg[] = "Quit Manual Input\r\n";
+	            HAL_UART_Transmit(&huart1, (uint8_t*)msg, strlen(msg), HAL_MAX_DELAY);
+			}
+		}
+	}
+	HAL_UART_Receive_IT(&huart1, &rx_byte, 1);
 }
 /* USER CODE END 4 */
 
